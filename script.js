@@ -49,7 +49,7 @@ function addToCart(product) {
   if (existing) {
     existing.quantity += 1;
   } else {
-    cart.push({ id: product.id, name: product.name, quantity: 1 });
+    cart.push({ id: product.id, name: product.name, price: Number(product.price) || 0, quantity: 1 });
   }
   saveCart(cart);
 }
@@ -75,6 +75,14 @@ function getCartCount() {
   return getCart().reduce((total, item) => total + item.quantity, 0);
 }
 
+function getCartTotal() {
+  return getCart().reduce((total, item) => total + (item.price * item.quantity), 0);
+}
+
+function formatNaira(amount) {
+  return '₦' + amount.toLocaleString('en-NG');
+}
+
 function updateCartCount() {
   const countEl = document.getElementById('cart-count');
   if (countEl) countEl.textContent = getCartCount();
@@ -83,8 +91,9 @@ function updateCartCount() {
 function buildWhatsAppCheckoutMessage() {
   const cart = getCart();
   if (cart.length === 0) return '';
-  const lines = cart.map((item) => `- ${item.name} x${item.quantity}`);
-  const message = `Hi, I'd like to order:\n${lines.join('\n')}`;
+  const lines = cart.map((item) => `- ${item.name} x${item.quantity} (${formatNaira(item.price * item.quantity)})`);
+  const total = `\nTotal: ${formatNaira(getCartTotal())}`;
+  const message = `Hi, I'd like to order:\n${lines.join('\n')}${total}`;
   return encodeURIComponent(message);
 }
 
@@ -103,7 +112,10 @@ function renderCartPanel() {
 
   itemsContainer.innerHTML = cart.map((item) => `
     <div class="cart-item" data-cart-item-id="${item.id}">
-      <span class="cart-item-name">${item.name}</span>
+      <div class="cart-item-info">
+        <span class="cart-item-name">${item.name}</span>
+        <span class="cart-item-price">${formatNaira(item.price)} each</span>
+      </div>
       <div class="cart-item-qty">
         <button class="qty-minus" aria-label="Decrease quantity">−</button>
         <span>${item.quantity}</span>
@@ -111,7 +123,7 @@ function renderCartPanel() {
         <button class="qty-remove" aria-label="Remove item">🗑</button>
       </div>
     </div>
-  `).join('');
+  `).join('') + `<div class="cart-total-row">Total: <strong>${formatNaira(getCartTotal())}</strong></div>`;
 
   itemsContainer.querySelectorAll('.cart-item').forEach((row) => {
     const id = row.dataset.cartItemId;
@@ -136,6 +148,10 @@ function closeCartPanel() {
   document.getElementById('cart-overlay')?.classList.remove('open');
 }
 
+function toggleMobileMenu() {
+  document.querySelector('.nav-links')?.classList.toggle('mobile-open');
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   updateCartCount();
   renderCartPanel();
@@ -144,7 +160,11 @@ document.addEventListener('DOMContentLoaded', () => {
     btn.addEventListener('click', () => {
       const card = btn.closest('[data-product-id]');
       if (!card) return;
-      addToCart({ id: card.dataset.productId, name: card.dataset.productName });
+      addToCart({
+        id: card.dataset.productId,
+        name: card.dataset.productName,
+        price: card.dataset.productPrice
+      });
       const originalText = btn.textContent;
       btn.textContent = 'Added ✓';
       setTimeout(() => { btn.textContent = originalText; }, 1200);
@@ -154,6 +174,7 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('cart-toggle-btn')?.addEventListener('click', openCartPanel);
   document.getElementById('cart-close-btn')?.addEventListener('click', closeCartPanel);
   document.getElementById('cart-overlay')?.addEventListener('click', closeCartPanel);
+  document.getElementById('nav-toggle')?.addEventListener('click', toggleMobileMenu);
 });
 
 // ============================================
