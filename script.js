@@ -182,10 +182,10 @@ document.addEventListener('DOMContentLoaded', () => {
 // ============================================
 
 const galleryItems = [
-  { id: 'g001', name: 'Premium Wear Clothing — Style 1', image: 'AD.jpg', category: 'clothes' },
-  { id: 'g002', name: 'Premium Wristwatch — Style 1', image: 'AD.jpg', category: 'watches' },
-  { id: 'g003', name: 'Handmade Footwear — Style 1', image: 'AD.jpg', category: 'footwear' },
-  { id: 'g004', name: 'Premium Wear Bag — Style 1', image: 'AD.jpg', category: 'bags' }
+  { id: 'g001', name: 'Premium Wear Clothing — Style 1', image: 'AD.jpg', category: 'clothes', price: 15000 },
+  { id: 'g002', name: 'Premium Wristwatch — Style 1', image: 'AD.jpg', category: 'watches', price: 25000 },
+  { id: 'g003', name: 'Handmade Footwear — Style 1', image: 'AD.jpg', category: 'footwear', price: 20000 },
+  { id: 'g004', name: 'Premium Wear Bag — Style 1', image: 'AD.jpg', category: 'bags', price: 18000 }
 ];
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -206,15 +206,8 @@ document.addEventListener('DOMContentLoaded', () => {
     `;
     grid.appendChild(card);
   });
-
-  grid.querySelectorAll('.add-to-cart-btn').forEach((btn) => {
+ grid.querySelectorAll('.add-to-cart-btn').forEach((btn) => {
     btn.addEventListener('click', () => {
       const card = btn.closest('[data-product-id]');
       if (!card) return;
       addToCart({ id: card.dataset.productId, name: card.dataset.productName });
-      const originalText = btn.textContent;
-      btn.textContent = 'Added ✓';
-      setTimeout(() => { btn.textContent = originalText; }, 1200);
-    });
-  });
-});
